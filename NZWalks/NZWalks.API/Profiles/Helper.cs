@@ -9,6 +9,8 @@ namespace NZWalks.API.Profiles
         public Helper()
         {
             CreateMap<Region, RegionDto>();
+            CreateMap<Walk, WalkDto>().ReverseMap();
+            CreateMap<WalkDifficulty, WalkDifficulties>().ReverseMap();
         }
     }
 }
