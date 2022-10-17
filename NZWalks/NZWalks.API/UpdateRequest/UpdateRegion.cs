@@ -1,4 +1,4 @@
-﻿namespace NZWalks.API.Update_Request
+﻿namespace NZWalks.API.UpdateRequest
 {
     public class UpdateRegion
     {

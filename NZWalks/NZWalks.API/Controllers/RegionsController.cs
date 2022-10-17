@@ -4,7 +4,7 @@ using NZWalks.API.AddRequest;
 using NZWalks.API.Interface;
 using NZWalks.API.Model.Domain;
 using NZWalks.API.Model.DTO;
-using NZWalks.API.Update_Request;
+using NZWalks.API.UpdateRequest;
 using System.Reflection.Metadata.Ecma335;
 
 namespace NZWalks.API.Controllers
@@ -44,7 +44,12 @@ namespace NZWalks.API.Controllers
 
         [HttpPost]
         public async Task<IActionResult> AddRegionAsync(AddRegionRequest addregionrequest)
-        {
+        {   
+            if (!ValidateAddRegionAsync(addregionrequest))
+            {
+                return BadRequest("Kindly fill up the fields");
+            }
+
             var region = new Region()
             {
                 code = addregionrequest.code,
@@ -95,7 +100,10 @@ namespace NZWalks.API.Controllers
 
         [HttpPut("{Id}")]
         public async Task<IActionResult> UpdateRegionAsync([FromRoute] Guid Id, [FromBody] UpdateRegion updateRegion)
-        {
+        {   if (!ValidateUpdateRegionAsync(updateRegion))
+            {
+                return BadRequest("The input is bad");
+            }
             //convert DTO to domain model
             var region = new Region()
             {
@@ -127,5 +135,88 @@ namespace NZWalks.API.Controllers
             //Return Ok response
             return Ok(regionDTO);
         }
+
+        //Region Validation
+        private bool ValidateAddRegionAsync(AddRegionRequest addregionrequest)
+        {
+            if(addregionrequest == null)
+            {
+                ModelState.AddModelError(nameof(addregionrequest), "$This cannot be null or whitespace");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(addregionrequest.code))
+            {
+                ModelState.AddModelError(nameof(addregionrequest.code), "$This cannot be null or whitespace");
+            }
+
+            if (string.IsNullOrWhiteSpace(addregionrequest.Name))
+            {
+                ModelState.AddModelError(nameof(addregionrequest.Name), "$This cannot be null or whitespace");
+            }
+
+            if(addregionrequest.Area <= 0)
+            {
+                ModelState.AddModelError(nameof(addregionrequest.Area), "$This value must be greater than 0");
+            }
+
+            if (addregionrequest.Lat <= 0)
+            {
+                ModelState.AddModelError(nameof(addregionrequest.Lat), "$This value must be greater than 0");
+            }
+
+            if (addregionrequest.Long <= 0)
+            {
+                ModelState.AddModelError(nameof(addregionrequest.Long), "$This value must be greater than 0");
+            }
+
+            if (ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        //Update Validation
+        private bool ValidateUpdateRegionAsync(UpdateRegion updateRegion)
+        {
+            if (updateRegion == null)
+            {
+                ModelState.AddModelError(nameof(updateRegion), "$This cannot be null or whitespace");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateRegion.code))
+            {
+                ModelState.AddModelError(nameof(updateRegion.code), "$This cannot be null or whitespace");
+            }
+
+            if (string.IsNullOrWhiteSpace(updateRegion.Name))
+            {
+                ModelState.AddModelError(nameof(updateRegion.Name), "$This cannot be null or whitespace");
+            }
+
+            if (updateRegion.Area <= 0)
+            {
+                ModelState.AddModelError(nameof(updateRegion.Area), "$This value must be greater than 0");
+            }
+
+            if (updateRegion.Lat <= 0)
+            {
+                ModelState.AddModelError(nameof(updateRegion.Lat), "$This value must be greater than 0");
+            }
+
+            if (updateRegion.Long <= 0)
+            {
+                ModelState.AddModelError(nameof(updateRegion.Long), "$This value must be greater than 0");
+            }
+
+            if (ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

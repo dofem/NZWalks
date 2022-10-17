@@ -5,13 +5,13 @@ using NZWalks.API.Interface;
 using NZWalks.API.Model.Domain;
 using NZWalks.API.Model.DTO;
 using NZWalks.API.Repository;
-using NZWalks.API.Update_Request;
+using NZWalks.API.UpdateRequest;
 using NZWalks.API.UpdateRequest;
 
 namespace NZWalks.API.Controllers
 {
     [ApiController]
-    [Route("{controller}")]
+    [Route("[controller]")]
     public class walkDifficultiesController : Controller
     {
         private IWalkDifficultiesRepository _walkDifficultiesRepository;
@@ -32,7 +32,7 @@ namespace NZWalks.API.Controllers
 
         }
 
-        [HttpGet("Id:Guid")]
+        [HttpGet("{Id:Guid}")]
         [ActionName("GetDifficultiesById")]
         public async Task <IActionResult> GetDifficultiesById(Guid Id)
         {
@@ -43,7 +43,7 @@ namespace NZWalks.API.Controllers
             return Ok(walkDTO);
         }
 
-        [HttpDelete("Id:Guid")]
+        [HttpDelete("{Id:Guid}")]
         public async Task<IActionResult> DeleteDifficulties(Guid Id)
         {
             var walkdifficulty = await _walkDifficultiesRepository.DeleteDifficulties(Id);
@@ -55,7 +55,11 @@ namespace NZWalks.API.Controllers
 
         [HttpPost]
         public async Task <IActionResult> AddDifficulties([FromBody] AddWalkDifficulties addWalkDifficulties)
-        {
+        {   if(!ValidateAddDifficulties(addWalkDifficulties))
+            {
+                return BadRequest("something went wrong");
+            }
+
             var diffydomain = new WalkDifficulty()
             {
                 Code = addWalkDifficulties.Code,
@@ -73,7 +77,11 @@ namespace NZWalks.API.Controllers
 
         [HttpPut]
         public async Task<IActionResult> UpdateDifficulties([FromRoute] Guid Id, [FromBody] UpdateDifficulty updateDifficulty)
-        {
+        {   if (!ValidateUpdateDifficulties(updateDifficulty))
+            {
+                return BadRequest("something went wrong");
+            }
+
             //convert DTO to domain model
             var walkdiffy = new WalkDifficulty()
             {
@@ -96,6 +104,47 @@ namespace NZWalks.API.Controllers
 
             //Return Ok response
             return Ok(WalkDTO);
+        }
+
+        //Validate AddRequest
+        private bool ValidateAddDifficulties(AddWalkDifficulties addWalkDifficulties)
+        {
+            if (addWalkDifficulties == null)
+            {
+                ModelState.AddModelError(nameof(addWalkDifficulties), $"This doesnt exist");
+                return false;
+            }
+            
+            if (string.IsNullOrEmpty(addWalkDifficulties.Code))
+            {
+                ModelState.AddModelError(nameof(addWalkDifficulties.Code), $"This must not be null or empty");
+            }
+            if(ModelState.ErrorCount >0)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
+        private bool ValidateUpdateDifficulties(UpdateDifficulty updateDifficulty)
+        {
+            if (updateDifficulty == null)
+            {
+                ModelState.AddModelError(nameof(updateDifficulty), $"This doesnt exist");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(updateDifficulty.Code))
+            {
+                ModelState.AddModelError(nameof(updateDifficulty.Code), $"This must not be null or empty");
+            }
+            if (ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
+
         }
     }
 }
